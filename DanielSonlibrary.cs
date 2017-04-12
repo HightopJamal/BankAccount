@@ -478,17 +478,17 @@ namespace DanielSon
 
         }
 
-      
 
-            protected void Enter_Click
 
-            (Object sender, EventArgs e)
-                    { // Note 1
+        protected void Enter_Click
+
+        (Object sender, EventArgs e)
+        { // Note 1
 
             String s = enter.Text;
 
             if (s == "Enter Name")
-            { 
+            {
 
                 String name = dataEntry.Text;
 
@@ -548,7 +548,7 @@ namespace DanielSon
         protected void Selected_Index
 
         (Object sender, EventArgs e)
-        { 
+        {
 
             teller.AcceptTransaction(transaction.SelectedIndex);
 
@@ -840,9 +840,201 @@ namespace DanielSon
         }
 
     }
+
+    public abstract class Employee
+    {
+        public string FirstName { get; private set; }
+        public string LastName { get; private set; }
+        public string SocialSecurityNumber { get; private set; }
+        public Employee(string first, string last, string ssn)
+        {
+            FirstName = first;
+            LastName = last;
+            SocialSecurityNumber = ssn;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0}  {1}\nsocial security number: {2}", FirstName, LastName, SocialSecurityNumber);
+        }
+
+        public abstract decimal Earnings();
+    }
+
+    public class SalariedEmployee : Employee
+    {
+        private decimal weeklySalary;
+
+        public SalariedEmployee(String First, string last, string ssn, decimal salary) : base(First, last, ssn)
+        {
+            weeklySalary = salary;
+        }
+
+        public decimal WeeklySalary
+        {
+            get
+            {
+                return weeklySalary;
+            }
+            set
+            {
+                if (value >= 0)
+                    weeklySalary = value;
+                else
+                    throw new ArgumentOutOfRangeException("WeeklySalary", value, "WeeklySalary must be >=0");
+            }
+        }
+
+        public override decimal Earnings()
+        {
+            return WeeklySalary;
+        }
+
+        public override string ToString()
+        {
+            return string.Format(" salaried employee: {0}\n{1}: {2:C}", base.ToString()
+        , "weekly salary", WeeklySalary);
+
+
+
+
+        }
+
+
+    }
+
+    public class HourlyEmployee : Employee
+    {
+        private decimal wage;
+        private decimal hours;
+
+        public HourlyEmployee(string first, string last, string ssn, decimal hourlyWage, decimal hoursWorked) : base(first, last, ssn)
+        {
+            wage = hourlyWage;
+            hours = hoursWorked;
+
+        }
+
+        public decimal Wage
+        {
+            get
+            {
+                return wage;
+            }
+            set
+            {
+                if (value >= 0 && value <= 168)
+                    hours = value;
+                else
+                    throw new ArgumentOutOfRangeException("Hours", value, "Hours must be >=0 and <= 168");
+
+
+            }
+        }
+
+
+        public override decimal Earnings()
+        {
+            if (hours <= 40)
+                return wage = hours;
+            else return (40 * wage) + ((hours - 40) * wage * 1.5M);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("hourly employee: {0}\n{1}: {2:C}; {3}: {4:F2}", base.ToString(), "hourly wage", wage, "hours worked", hours);
+        }
+    }
+
+    public class CommissionEmployee : Employee
+    {
+        private decimal grossSales;
+        private decimal commissionRate;
+
+        public CommissionEmployee(string first, string last, string ssn, decimal sales, decimal rate) : base(first, last, ssn)
+        {
+            grossSales = sales;
+            commissionRate = rate;
+        }
+        public decimal GrossSales
+        {
+            get
+            {
+                return grossSales;
+            }
+            set
+            {
+                if (value >= 0)
+                    grossSales = value;
+                else
+                    throw new ArgumentOutOfRangeException("GrossSales", value, "GrossSales must be >= 0");
+            }
+        }
+
+        public decimal CommissionRate
+        {
+            get
+            {
+                return commissionRate;
+            }
+            set
+            {
+                if (value > 0 && value < 1)
+                    commissionRate = value;
+                else
+                    throw new ArgumentOutOfRangeException("CommissionRate", value, "CommisionRate must be >0 and < 1");
+            }
+        }
+
+        public override decimal Earnings()
+        {
+            return CommissionRate * GrossSales;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0}: {1}\n{2}: {3:C}\n{4}: {5:F2}", "commision employee", base.ToString(), "gross sales", GrossSales, "commission rate", CommissionRate);
+        }
+
+
+    }
+
+    public class BasePlusCommissionEmployee: CommissionEmployee
+    {
+        private decimal baseSalary;
+
+        public BasePlusCommissionEmployee(string first, string last, string ssn, decimal sales, decimal rate, decimal salary) : base(first, last, ssn, sales, rate)
+        {
+            baseSalary = salary;
+        }
+
+        public decimal BaseSalary
+        {
+            get
+            {
+                return baseSalary;
+            }
+            set
+            {
+                if (value > 0)
+                    baseSalary = value;
+                else
+                    throw new ArgumentOutOfRangeException("BaseSalary", value, "BaseSalary must be >=0");
+            }
+        }
+        
+        public override decimal Earnings()
+        {
+            return BaseSalary + base.Earnings();
+        }
+
+        public override string ToString()
+        {
+            return string.Format("Base-salaried {0}; base salary: {1:C}", base.ToString(), BaseSalary);
+        }
+
+    }
+
+
+
 }
-
-
-
-
-
