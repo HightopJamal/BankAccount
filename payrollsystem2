@@ -1,0 +1,88 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.IO;
+using DanielSon;
+
+namespace PayRollSystem2
+{
+    class Program
+    {
+        public static void Main(string[] args)
+        {
+            Employee employee;
+            string line;
+            String[] eData;
+            int employeeKind = 0;
+            List<Employee> employees = new List<Employee>();
+
+            StreamReader rdr = File.OpenText("TextFile1.txt");
+
+            while (!rdr.EndOfStream);
+            {
+                line = rdr.ReadLine();
+                Console.WriteLine(line);
+                Console.ReadKey();
+                eData = line.Split();
+                employeeKind = Convert.ToInt32(eData[0]);
+                switch (employeeKind)
+                {
+                    case 1:
+                        employee = new SalariedEmployee(eData[2], eData[3], eData[4], Convert.ToDecimal(eData[5]));
+                        break;
+
+                    case 2:
+                        employee = new HourlyEmployee(eData[2], eData[3], eData[4], Convert.ToDecimal(eData[5]), Convert.ToDecimal(eData[6]));
+                        employees.Add(employee);break;
+
+                    case 3:
+                        employee = new CommissionEmployee(eData[2], eData[3], eData[4], Convert.ToDecimal(eData[5]), Convert.ToDecimal(eData[6]));
+                        employees.Add(employee); break;
+
+                    case 4:
+                        employee = new BasePlusCommissionEmployee(eData[2], eData[3], eData[4], Convert.ToDecimal(eData[5]), Convert.ToDecimal(eData[6]), Convert.ToDecimal(eData[7]));
+                        employees.Add(employee); break;
+
+                }
+            }
+            rdr.Close();
+
+            Console.WriteLine("Emplyees processed polymorphically:\n");
+
+            foreach (Employee currentEmployee in employees)
+            {
+                Console.WriteLine(currentEmployee);
+
+                if (currentEmployee is BasePlusCommissionEmployee)
+                {
+                    BasePlusCommissionEmployee bemployee = (BasePlusCommissionEmployee)currentEmployee;
+
+                    bemployee.BaseSalary *= 1.10M;
+                    Console.WriteLine("new base salary with 10% increase is: {0:C}", bemployee.BaseSalary);
+                }
+
+                Console.WriteLine("earned {0:C}\n", currentEmployee.Earnings());
+            }
+
+            employees.Sort();
+
+            StreamWriter writer = File.CreateText("DanielReport.txt");
+            for (int j = 0; j < employees.Count; j++)
+            {
+                Console.WriteLine("Employee {0} is a {1}", j, employees[j].GetType());
+                writer.WriteLine("Employee {0} is a {1}", j, employees[j].GetType());
+            }
+
+            writer.WriteLine("\r\nName\t\tEarnings\r\n-------------------------------------");
+            foreach (Employee e in employees)
+            {
+                writer.WriteLine("{0}, {1}\t{2:C}", e.LastName, e.FirstName, e.Earnings());
+            }
+            writer.Close();
+
+
+        }
+    }
+}
